@@ -1,0 +1,20 @@
+repos:
+  - repo: 'https://github.com/pre-commit/pre-commit-hooks'
+    rev: v4.3.0
+    hooks:
+      - id: check-ast # Make sure Python files are valid
+      - id: check-case-conflict # Make sure files are safe for all Operating Systems
+      - id: end-of-file-fixer # Make sure files end with a newline
+      - id: fix-byte-order-marker # Remove UTF-8 byte order marker
+      - id: mixed-line-ending # Clean up line endings to all be the same
+      - id: requirements-txt-fixer # Clean up requirements
+      - id: trailing-whitespace # Clean up trailing whitespace
+  - repo: 'https://github.com/psf/black'
+    rev: 22.6.0
+    hooks:
+      - id: black
+  - repo: 'https://github.com/pycqa/isort'
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        name: isort (python)
