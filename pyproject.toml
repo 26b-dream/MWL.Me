@@ -1,30 +1,6 @@
 [tool.isort]
 profile = "black" # Use black style formatting for isort
 
-# If an import starts with these strings they are part of that category
-known_common="common"
-known_config="config"
-known_django="django"
-known_playlists="playlists"
-known_shows="shows"
-known_typing="typing"
-known_plugins="plugins"
-
-# Import order
-sections="FUTURE,TYPING,STDLIB,THIRDPARTY,DJANGO,COMMON,CONFIG,SHOWS,PLAYLISTS,FIRSTPARTY,LOCALFOLDER,PLUGINS"
-
-# String to put aboe the import
-import_heading_common="Common"
-import_heading_config="Config"
-import_heading_django="Django"
-import_heading_firstparty="Unaknown" # Anything that is not able to be automatically detected
-import_heading_localfolder="Local" # Anything that is a relative import
-import_heading_playlists="Apps"
-import_heading_shows="Apps"
-import_heading_stdlib="Standard Library"
-import_heading_thirdparty="Third Party"
-import_heading_plugins="Plugins"
-
 [tool.black]
 line-length = 120 # Set line length to 120 because it's easier to work with
 
