@@ -60,8 +60,10 @@
                 aria-label="Search"/>
          <div class="navbar-nav">
             <div class="nav-item text-nowrap">
-               <a class="btn btn-dark" href="{% url 'update' request.GET.username %}">Update Data</a>
-               <a class="btn btn-danger" href="{% url 'delete' request.GET.username %}">Delete Data</a>
+               <a class="btn btn-dark"
+                  href="{% url 'update' request.GET.username %}?{{ form.data.urlencode }} ">Update Data</a>
+               <a class="btn btn-danger"
+                  href="{% url 'delete' request.GET.username %}?{{ form.data.urlencode }}">Delete Data</a>
             </div>
          </div>
       </header>
@@ -69,9 +71,7 @@
          <div class="row">
             <nav id="sidebarMenu"
                  class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-               <div class="position-sticky pt-3">
-                  {% include "user_form.html" %}
-               </div>
+               <div class="position-sticky pt-3">{% include "user_form.html" %}</div>
             </nav>
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -225,22 +225,14 @@
                            <th>Name</th>
                            <th>Status</th>
                            <th>Score</th>
-                           <th>
-                              Reference
-                           </th>
+                           <th>Reference</th>
                         </tr>
                      </thead>
                      <tfoot>
                         <tr>
-                           <th>
-                              Image
-                           </th>
-                           <th>
-                              Name
-                           </th>
-                           <th>
-                              Position
-                           </th>
+                           <th>Image</th>
+                           <th>Name</th>
+                           <th>Position</th>
                            <th>
                               Reference
                            </th>
