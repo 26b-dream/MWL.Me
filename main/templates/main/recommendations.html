@@ -70,63 +70,7 @@
             <nav id="sidebarMenu"
                  class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
                <div class="position-sticky pt-3">
-                  <form action="/recommendations" method="get">
-                     {% csrf_token %}
-                     {% for field in form.visible_fields %}
-                        {% if field.name in 'username, minimum_recs, number_of_results, ignore_recs_over' %}
-                           <div class="form-floating">
-                              {{ field }}
-                              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                           </div>
-                        {% elif field.name in 'do_not_return_not_on_list, score_compensation, popularity_compensation, use_watching, use_completed, use_on_hold, use_dropped, use_plan_to_watch, do_not_return_watching, do_not_return_completed, do_not_return_on_hold, do_not_return_dropped, do_not_return_plan_to_watch' %}
-                           <div class="form-check form-switch">
-                              {{ field }}
-                              <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                           </div>
-                        {% elif field.name == 'divider_1' %}
-                           <div class="form-check form-switch">
-                              {% comment %} This checkbox doesnot actually send any value it is just used to check the other boxes at once {% endcomment %}
-                              <input type="checkbox" class="form-check-input" id="id_use_toggles" checked>
-                              <label class="form-check-label" for="include_existing">Use Entries From:</label>
-                           {% elif field.name == 'divider_2' %}
-                           </div>
-                           <div class="form-check form-switch">
-                              {% comment %} This checkbox doesnot actually send any value it is just used to check the other boxes at once {% endcomment %}
-                              <input type="checkbox"
-                                     class="form-check-input"
-                                     id="id_do_not_return_toggles"
-                                     {% if request.GET.do_not_return %}checked{% endif %}>
-                              <label class="form-check-label" for="include_existing">Return Entries that are:</label>
-                           {% elif field.name == 'divider_3' %}
-                           </div>
-                        {% endif %}
-                     {% endfor %}
-                     <!-- Multi-checkmark thing for use -->
-                     <script>
-                     var checkAll = document.getElementById("id_use_toggles");
-                     checkAll.addEventListener("change", function () {
-                        var checked = this.checked;
-                        var otherCheckboxes = document.querySelectorAll(".use_toggles");
-                        [].forEach.call(otherCheckboxes, function (item) {
-                           item.checked = checked;
-                        });
-                     });
-                     </script>
-                     <!-- Multi-checkmark thing for do not return -->
-                     <script>
-                     var checkAll = document.getElementById("id_do_not_return_toggles");
-                     checkAll.addEventListener("change", function () {
-                        var checked = this.checked;
-                        var otherCheckboxes = document.querySelectorAll(".do_not_return_toggles");
-                        [].forEach.call(otherCheckboxes, function (item) {
-                           item.checked = checked;
-                        });
-                     });
-                     </script>
-                     <div class="col-auto">
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                     </div>
-                  </form>
+                  {% include "user_form.html" %}
                </div>
             </nav>
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
