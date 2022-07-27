@@ -15,7 +15,7 @@ class NameForm(Form):
 
     CHOICES = [("anime", "Anime"), ("manga", "Manga")]
 
-    anime_or_manga = ChoiceField(choices=CHOICES, widget=RadioSelect)
+    anime_or_manga = ChoiceField(choices=CHOICES, widget=RadioSelect, initial="anime")
     anime_or_manga.widget.attrs["class"] = "form-check-input"
 
     divider_1 = BooleanField(required=False)
