@@ -4,6 +4,7 @@ from subprocess import PIPE
 
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
+from django.utils.http import urlencode
 
 from common.myanimelist_user import MyAnimeListUser
 from main.models import ImportQue
@@ -130,6 +131,10 @@ def json_response(request: HttpRequest) -> HttpResponse:
 # This is "fast enough" in the future I may try to offload some of this into a faster language
 def recommendations(request: HttpRequest) -> HttpResponse:
     form = NameForm(request.GET)
+    # TODO: Make this an actual 404-like page
+    if not form.is_valid():
+        return HttpResponse("Invalid form")
+
     username = request.GET.get("username")
     user = MyAnimeListUser(username)
     if user.model_exists:
@@ -148,21 +153,35 @@ def recommendations(request: HttpRequest) -> HttpResponse:
         "user": user,
         "form": form,
     }
-    print(user.model.last_successful_anime_list_import)
+
     request.GET.get("username")
     return render(request, "main/recommendations.html", context)
 
 
 def update(request: HttpRequest, username: str) -> HttpResponse:
-    ImportQue.objects.get_or_create(
-        type="user", key=username, priority=10000, minimum_info_timestamp=datetime.now().astimezone()
-    )
+    form = NameForm(request.GET)
+    # TODO: Make this an actual 404-like page
+    if not form.is_valid():
+        return HttpResponse("Invalid form")
 
-    return redirect(f"/recommendations?username={username}&redirect=update")
+    ImportQue.objects.get_or_create(
+        type="user",
+        key=username,
+        defaults={
+            "minimum_modified_timestamp": datetime.now().astimezone(),  # Information was just imported, this value was used
+            "priority": 10000,  # Updates always have a low priority because information is already on the database
+        },
+    )
+    return redirect(f"/recommendations?{urlencode(form.data, doseq=True)}&redirect=update")
 
 
 def delete(request: HttpRequest, username: str) -> HttpResponse:
+    form = NameForm(request.GET)
+    # TODO: Make this an actual 404-like page
+    if not form.is_valid():
+        return HttpResponse("Invalid form")
+
     user = MyAnimeListUser(username)
     user.model.delete()
 
-    return redirect(f"/recommendations?username={username}&redirect=delete")
+    return redirect(f"/recommendations?{urlencode(form.data, doseq=True)}&redirect=delete")
