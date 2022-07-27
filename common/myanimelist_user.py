@@ -110,11 +110,10 @@ class MyAnimeListUser:
         self, minimum_info_timestamp: Optional[datetime] = None, minimum_modified_timestamp: Optional[datetime] = None
     ) -> None:
         if self.model.information_oudated(minimum_info_timestamp, minimum_modified_timestamp):
-            user_json_folder = self.anime_json_path().parent
             # By default assume lists are private for simplicity
             self.model.anime_list_private = True
             self.model.manga_list_private = True
-            self.model.add_timestamps_and_save(user_json_folder)
+            self.model.add_timestamps_and_save(self.anime_json_path())
 
             # If there are no errors downloading the anime list use the information
             if not self.anime_json_path().parsed_json().get("error"):
@@ -140,8 +139,8 @@ class MyAnimeListUser:
                     self.model.average_manga_score = sum(self.manga_scores) / scored_manga
                 self.model.last_successful_manga_list_import = self.manga_json_path().aware_mtime()
 
-            # TODO: Get timestamp from paginated files combined
-            self.model.add_timestamps_and_save(user_json_folder)
+            # TODO: Get timestamp from paginated and manga and find a timestmap between them
+            self.model.add_timestamps_and_save(self.anime_json_path())
 
     def json_media_ids(self, type: MEDIA_TYPES, media_ids: list[int], offset: int = 0) -> list[int]:
         parsed_json = self.lazy_json_path(type, offset).parsed_json()
