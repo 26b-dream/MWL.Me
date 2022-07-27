@@ -260,7 +260,17 @@
             border-radius: .25rem;
             box-shadow: 0.25rem 0.25rem 0.5rem rgba(0, 0, 0, 0.25);
          }
-   
+         
+         {% comment %} Hiding the header and footer allows the cards to completely fill the table from side to side {% endcomment %}
+         .cards thead {
+            display: none;
+         }
+
+         {% comment %} Hiding the header and footer allows the cards to completely fill the table from side to side {% endcomment %}
+         .cards tfoot {
+            display: none;
+         }
+
       .cards tbody td {
          display: block;
       }
@@ -331,8 +341,9 @@
                      // See: https://datatables.net/reference/option/dom
                      dom: "QBftip",
                      
-                     // 20 entries per page looks best when in card mode because it works for 4 or 5 wide
-                     pageLength: 20,
+                     // 30 entries per page, works for 3, 5, and 6 wide
+                     // Does not work with 4 wide, but 4 wide would require 60 per page which is too much
+                     pageLength: 30,
                      // Button to switch between table and card view 
                      // See: https://www.gyrocode.com/articles/jquery-datatables-card-view/
                      buttons: ['csv', {
