@@ -1,10 +1,22 @@
-from django.forms import BooleanField, CharField, Form, IntegerField
+from django.forms import (
+    BooleanField,
+    CharField,
+    ChoiceField,
+    Form,
+    IntegerField,
+    RadioSelect,
+)
 
 
 class NameForm(Form):
     username = CharField(label="Username", max_length=255, required=True)
     username.widget.attrs["class"] = "form-control"
     username.widget.attrs["placeholder"] = "Username"  # Required for the pretty label animation
+
+    CHOICES = [("anime", "Anime"), ("manga", "Manga")]
+
+    anime_or_manga = ChoiceField(choices=CHOICES, widget=RadioSelect)
+    anime_or_manga.widget.attrs["class"] = "form-check-input"
 
     divider_1 = BooleanField(required=False)
 
