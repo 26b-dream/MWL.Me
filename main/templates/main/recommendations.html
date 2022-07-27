@@ -103,8 +103,8 @@
                         <div class="col-auto">
                            {% if user.model.last_successful_anime_list_import == None %}
                               No information was available.
-                              <br>
-                              Make sure profile is set to public <a href=""https://myanimelist.net/editprofile.php?go=listpreferences">here</a>.
+                              <br/>
+                              Make sure profile is set to public <a href="https://myanimelist.net/editprofile.php?go=listpreferences">here</a>.
                            {% else %}
                               Profile is set to private, information may be outdated.
                               <br>
@@ -300,6 +300,7 @@
             href="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.12.1/b-2.2.3/sc-2.0.7/sb-1.3.4/sp-2.0.2/sl-1.4.0/datatables.min.css"/>
       <script type="text/javascript" src="https://cdn.datatables.net/v/bs5/jq-3.6.0/dt-1.12.1/b-2.2.3/sc-2.0.7/sb-1.3.4/sp-2.0.2/sl-1.4.0/datatables.min.js"></script>
       <script>
+      {% include "table_maker.js" %}
       {% autoescape off %}
       dt_table("json_response?{{ request.GET.urlencode }}")
       {% endautoescape %}
