@@ -1,5 +1,5 @@
 import subprocess
-from datetime import datetime
+from datetime import datetime, timedelta
 from subprocess import PIPE
 
 from django.http import HttpRequest, HttpResponse
@@ -149,11 +149,10 @@ def recommendations(request: HttpRequest) -> HttpResponse:
         if user.model.user_anime().count() != user.model.anime_count:
             modified_timestamp = datetime.now().astimezone()
             user.update_all(minimum_modified_timestamp=modified_timestamp)
-            user.update_que_priority()
     else:
         if not ImportQue.objects.filter(type="user", key=username).first():
             ImportQue.objects.create(
-                type="user", key=username, priority=10000, minimum_modified_timestamp=datetime.now().astimezone()
+                type="user", key=username, minimum_modified_timestamp=datetime.now().astimezone() - timedelta(days=365)
             )
 
     context = {
@@ -175,8 +174,7 @@ def update(request: HttpRequest, username: str) -> HttpResponse:
         type="user",
         key=username,
         defaults={
-            "minimum_modified_timestamp": datetime.now().astimezone(),  # Information was just imported, this value was used
-            "priority": 10000,  # Updates always have a low priority because information is already on the database
+            "minimum_modified_timestamp": datetime.now().astimezone()  # Information was just imported, this value was used
         },
     )
     return redirect(f"/recommendations?{urlencode(form.data, doseq=True)}&redirect=update")

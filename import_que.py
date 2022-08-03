@@ -18,19 +18,18 @@ if __name__ == "__main__":
                 Q(minimum_info_timestamp__lt=datetime.now().astimezone())
                 | Q(minimum_modified_timestamp__lt=datetime.now().astimezone())
             )
-            .order_by("priority")
-            .reverse()
-            .first()
+            # Modified timestamp is used when brand new information is being imported which should always get priority over updating old information
+            # Yes this looks backwards, but the results are correct
+            .order_by("minimum_info_timestamp", "minimum_modified_timestamp").first()
         )
         if media:
             if media.type in ["anime", "manga"]:
                 print(f"Importing {media.type}: " + media.key)
                 # This is not actually required but it keeps Pylance in check
                 if media.type == "anime" or media.type == "manga":
-                    MyAnimeListMedia(media_id=int(media.key), media_type=media.type).full_import(
-                        minimum_info_timestamp=media.minimum_info_timestamp,
-                        minimum_modified_timestamp=media.minimum_modified_timestamp,
-                    )
+                    MyAnimeListMedia.from_simple(
+                        media_id=int(media.key), media_type=media.type, sparse_import=False
+                    ).import_info(media.minimum_info_timestamp, media.minimum_modified_timestamp)
             elif media.type == "user":
                 username = media.key
                 print("Importing User: " + username)

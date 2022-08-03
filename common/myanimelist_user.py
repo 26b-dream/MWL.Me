@@ -14,7 +14,6 @@ from functools import cache
 from urllib.error import HTTPError
 
 from django.db import transaction
-from django.db.models.expressions import F
 
 import common.configure_django  # type: ignore # noqa: F401 - Modified global values
 from common.constants import DOWNLOADED_FILES_DIR
@@ -161,18 +160,6 @@ class MyAnimeListUser:
         else:
             return Manga.objects.filter(id__in=media_ids, sparse=sparse).values_list("id", flat=True)
 
-    @cache
-    def update_que_priority(self) -> None:
-        """The idea is if someone is refrsshing the page a lot their required entries should get a higher priority"""
-        """This will increase the priority of each entry in the queue when the page is refreshed"""
-        # Update anime
-        for media_type in ["anime", "manga"]:
-            # This is completely redundant but type checking a literal while looping through an array does not work
-            # Without this media_type is assumed to be a str instead of the 2 literal options
-            if media_type == "anime" or media_type == "manga":
-                media_ids = self.json_media_ids(media_type, [])
-                ImportQue.objects.filter(key__in=media_ids, type=media_type).update(priority=F("priority") + 1)
-
     def update_single_user_list(self, type: MEDIA_TYPES, the_class2: Type[USER_MEDIA_TYPES]) -> None:
         offset = 0
         json_path = self.lazy_json_path(type, offset)
@@ -210,8 +197,8 @@ class MyAnimeListUser:
                         ImportQue(
                             type=type,
                             key=media_id,
-                            priority=1,
                             minimum_modified_timestamp=datetime.now().astimezone(),
+                            note=f"User list: {self.model}",
                         )
                     )
 
@@ -229,7 +216,6 @@ class MyAnimeListUser:
     ) -> None:
         self.download_all(minimum_info_timestamp)
         self.update_all(minimum_info_timestamp, minimum_modified_timestamp)
-        self.update_que_priority()
 
         # Once a user's information is update it can be remove from the queue
         ImportQue.objects.filter(type="user", key=self.username).delete()
