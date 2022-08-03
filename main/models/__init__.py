@@ -22,14 +22,16 @@ if True:
 
         id = models.PositiveSmallIntegerField(primary_key=True)
         title = models.CharField(max_length=255)
+        alternative_titles_en = models.CharField(max_length=255)
+        alternative_titles_ja = models.CharField(max_length=255)
         main_picture_medium = models.CharField(max_length=255)
-        main_picture_large = models.CharField(max_length=255)
+        main_picture_large = models.CharField(max_length=255, null=True)
         start_date = models.DateField(null=True)
         end_date = models.DateField(null=True)
-        synopsis = models.TextField()
+        synopsis = models.TextField(null=True)
         mean = models.FloatField(null=True)
         rank = models.PositiveSmallIntegerField(null=True)
-        popularity = models.PositiveSmallIntegerField()
+        popularity = models.PositiveSmallIntegerField(null=True)
         num_list_users = models.PositiveSmallIntegerField()
         num_scoring_users = models.PositiveSmallIntegerField()
         nsfw = models.CharField(max_length=255)
@@ -37,11 +39,17 @@ if True:
         updated_at = models.DateTimeField()
         media_type = models.CharField(max_length=255)
         status = models.CharField(max_length=255)
-        background = models.TextField()
+        background = models.TextField(null=True)
         sparse = models.BooleanField()
+        statistics_status_watching = models.PositiveSmallIntegerField(null=True)
+        statistics_status_completed = models.PositiveSmallIntegerField(null=True)
+        statistics_status_on_hold = models.PositiveSmallIntegerField(null=True)
+        statistics_status_dropped = models.PositiveSmallIntegerField(null=True)
+        statistics_status_plan_to_watch = models.PositiveSmallIntegerField(null=True)
+        statistics_num_list_users = models.PositiveSmallIntegerField(null=True)
 
         def __str__(self) -> str:
-            return self.title
+            return f"{self.title} ({self.id})"
 
     class Anime(Media):
         objects: QuerySet[Self]
@@ -51,12 +59,12 @@ if True:
 
         num_episodes = models.PositiveSmallIntegerField()
         start_season_year = models.PositiveSmallIntegerField(null=True)
-        start_season_season = models.CharField(max_length=255)
+        start_season_season = models.CharField(max_length=255, null=True)
         broadcast_day_of_the_week = models.CharField(max_length=255)
         broadcast_start_time = models.TimeField(null=True)
-        source = models.CharField(max_length=255)
-        average_episode_duration = models.PositiveSmallIntegerField()
-        rating = models.CharField(max_length=255)
+        source = models.CharField(max_length=255, null=True)
+        average_episode_duration = models.PositiveSmallIntegerField(null=True)
+        rating = models.CharField(max_length=255, null=True)
 
     class Manga(Media):
         objects: QuerySet[Self]
@@ -70,6 +78,30 @@ if True:
         num_chapters = models.PositiveSmallIntegerField()
 
 
+# Pictures
+if True:
+
+    class AnimePictures(models.Model):
+        objects: QuerySet[Self]
+
+        class Meta:  # type: ignore - Meta always throws type errors
+            db_table = lazy_db_table()
+
+        media = models.ForeignKey(Anime, on_delete=models.CASCADE)
+        medium = models.CharField(max_length=255)
+        large = models.CharField(max_length=255)
+
+    class MangaPictures(models.Model):
+        objects: QuerySet[Self]
+
+        class Meta:  # type: ignore - Meta always throws type errors
+            db_table = lazy_db_table()
+
+        media = models.ForeignKey(Manga, on_delete=models.CASCADE)
+        medium = models.CharField(max_length=255)
+        large = models.CharField(max_length=255)
+
+
 # Alternative Title
 if True:
 
@@ -79,7 +111,7 @@ if True:
         class Meta:  # type: ignore - Meta always throws type errors
             db_table = lazy_db_table()
 
-        anime = models.ForeignKey(Anime, on_delete=models.CASCADE)
+        media = models.ForeignKey(Anime, on_delete=models.CASCADE)
         title = models.CharField(max_length=255)
 
     class MangaAlternativeTitles(models.Model):
@@ -88,7 +120,7 @@ if True:
         class Meta:  # type: ignore - Meta always throws type errors
             db_table = lazy_db_table()
 
-        anime = models.ForeignKey(Manga, on_delete=models.CASCADE)
+        media = models.ForeignKey(Manga, on_delete=models.CASCADE)
         title = models.CharField(max_length=255)
 
 
@@ -126,10 +158,8 @@ if True:
             db_table = lazy_db_table()
             constraints = lazy_unique("media", "related_media", "relationship")
 
-        id = models.AutoField(primary_key=True)
         media = lazy_fk(Anime)
         related_media = lazy_fk(Manga)
-        relationship = models.CharField(max_length=255)
 
     class MangaRelatedAnime(RelatedMedia):
         objects: QuerySet[Self]
@@ -180,10 +210,64 @@ if True:
         recommendations = models.PositiveSmallIntegerField()
 
 
-# Genres
+# Synonyms
+if True:
+
+    class AnimeSynonyms(models.Model):
+        objects: QuerySet[Self]
+
+        class Meta:  # type: ignore - Meta always throws type errors
+            db_table = lazy_db_table()
+
+        media = models.ForeignKey(Anime, on_delete=models.CASCADE)
+        synonym = models.CharField(max_length=255)
+
+    class MangaSynonyms(models.Model):
+        objects: QuerySet[Self]
+
+        class Meta:  # type: ignore - Meta always throws type errors
+            db_table = lazy_db_table()
+
+        media = models.ForeignKey(Manga, on_delete=models.CASCADE)
+        synonym = models.CharField(max_length=255)
+
+
+# Studios
 if True:
     # This is sharedb etween anime and manga
-    class Genres(models.Model):
+    class Studio(models.Model):
+        objects: QuerySet[Self]
+
+        class Meta:  # type: ignore - Meta always throws type errors
+            db_table = lazy_db_table()
+
+        id = models.PositiveSmallIntegerField(primary_key=True)
+        name = models.CharField(max_length=255)
+
+    class AnimeStudios(models.Model):
+        objects: QuerySet[Self]
+
+        class Meta:  # type: ignore - Meta always throws type errors
+            db_table = lazy_db_table()
+
+        media = models.ForeignKey(Anime, on_delete=models.CASCADE)
+        studio = models.ForeignKey(Studio, on_delete=models.CASCADE)
+
+
+# Genres
+if True:
+    # The genre values between anime and manga are different
+    class AnimeGenreList(models.Model):
+        objects: QuerySet[Self]
+
+        class Meta:  # type: ignore - Meta always throws type errors
+            db_table = lazy_db_table()
+
+        id = models.PositiveSmallIntegerField(primary_key=True)
+        name = models.CharField(max_length=255)
+
+    # The genre values between anime and manga are different
+    class MangaGenreList(models.Model):
         objects: QuerySet[Self]
 
         class Meta:  # type: ignore - Meta always throws type errors
@@ -199,7 +283,7 @@ if True:
             db_table = lazy_db_table()
 
         media = models.ForeignKey(Anime, on_delete=models.CASCADE)
-        genre = models.ForeignKey(Genres, on_delete=models.CASCADE)
+        genre = models.ForeignKey(AnimeGenreList, on_delete=models.CASCADE)
 
     class MangaGenres(models.Model):
         objects: QuerySet[Self]
@@ -208,7 +292,7 @@ if True:
             db_table = lazy_db_table()
 
         media = models.ForeignKey(Manga, on_delete=models.CASCADE)
-        genre = models.ForeignKey(Genres, on_delete=models.CASCADE)
+        genre = models.ForeignKey(MangaGenreList, on_delete=models.CASCADE)
 
 
 # User
@@ -221,8 +305,6 @@ if True:
             db_table = lazy_db_table()
 
         id = models.AutoField(primary_key=True)
-        alternative_titles_en = models.CharField(max_length=255)
-        alternative_titles_ja = models.CharField(max_length=255)
         name = models.CharField(max_length=255, unique=True)
         anime_count = models.PositiveSmallIntegerField(null=True)
         manga_count = models.PositiveSmallIntegerField(null=True)
@@ -238,6 +320,9 @@ if True:
 
         def user_manga(self) -> QuerySet[UserManga]:
             return UserManga.objects.filter(user=self, media__sparse=False)
+
+        def __str__(self) -> str:
+            return self.name
 
     class UserMedia(GetOrNew):
         class Meta:  # type: ignore - Meta class always throws type errors
@@ -286,6 +371,6 @@ class ImportQue(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.CharField(max_length=255, null=False)
     key = models.CharField(max_length=255, null=False)
-    priority = models.PositiveSmallIntegerField()
     minimum_info_timestamp = models.DateTimeField(null=True)
     minimum_modified_timestamp = models.DateTimeField(null=True)
+    note = models.CharField(max_length=255, null=True)
