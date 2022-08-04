@@ -223,17 +223,16 @@
                            <th>Name</th>
                            <th>Status</th>
                            <th>Score</th>
-                           <th>Reference</th>
+                           <th>Ref</th>
                         </tr>
                      </thead>
                      <tfoot>
                         <tr>
-                           <th>Image</th>
-                           <th>Name</th>
-                           <th>Position</th>
-                           <th>
-                              Reference
-                           </th>
+                           <tf>Image</tf>
+                           <tf>Name</tf>
+                           <tf>Status</tf>
+                           <tf>Score</tf>
+                           <tf>Ref</tf>
                         </tr>
                      </tfoot>
                   </table>
@@ -358,53 +357,54 @@
                      }],
                      data: asyncData.data,
                      columns: [
-                        {
-                           data: '1',
-                           searchable: false, // There is nothing possible to search it's a picture
-                           // Make a coumn that is an image that links to MyAnimeList
-                           render: function (data, type, full, meta) {
-                              var anime_id = asyncData.data[meta.row][2];
-                              return "<a href=\"https://myanimelist.net/{{form.anime_or_manga.value}}/" + anime_id + "\">" + "<img src=\"https://api-cdn.myanimelist.net/images/{{form.anime_or_manga.value}}/" + data + ".jpg\">" + "</a>";
-                           },
+                     
+                     // Image
+                     {
+                        data: '1',
+                        searchable: false, // There is nothing possible to search it's a picture
+                        // Make a coumn that is an image that links to MyAnimeList
+                        render: function (data, type, full, meta) {
+                           var anime_id = asyncData.data[meta.row][2];
+                           return "<a href=\"https://myanimelist.net/{{form.anime_or_manga.value}}/" + anime_id + "\">" + "<img src=\"https://api-cdn.myanimelist.net/images/{{form.anime_or_manga.value}}/" + asyncData.info[data][1] + ".jpg\">" + "</a>";
                         },
-                        {
-                           data: '2',
-                           // Make a column that is the name that links to MyAnimeList
-                           render: function (data, type) {
-                              return "<a href=\"https://myanimelist.net/{{form.anime_or_manga.value}}/" + data + "\">" + asyncData.names[data] + "</a>";
-                           },
-         
+                     },
+
+                     // Name
+                     {
+                        data: '1',
+                        // Make a column that is the name that links to MyAnimeList
+                        render: function (data, type) {
+                           return "<a href=\"https://myanimelist.net/{{form.anime_or_manga.value}}/" + data + "\">" + asyncData.info[data][0] + "</a>";
                         },
-                        {
-                           data: '4',
-                           // Make a column that shows the user's status for an anime/manga
-                           render: function (data, type) {
-                              return STATUS_ARRAY[data];
-                           },
+      
+                     },
+                     
+                     // Status
+                     {
+                        data: '3',
+                        render: function (data, type) {
+                           return STATUS_ARRAY[data];
                         },
-                        {
-                           // Straight show the score used to determine how good the recommendation is
-                           data: '0',
+      
+                     },
+                        
+                     // Score
+                     {
+                        data: '0',
+                        render: function (data, type) {
+                           return data;
                         },
-                        {
-                           data: '3',
-                           // Shows in depth information about how the score was calculated
-                           render: function (data, type) {
-                              // Put the most influential entries at the top of the list
-                              data.sort(function (a, b) {
-                                 return b[1] - a[1];
-                              });
-                              
-                              var output = "";
-                              for (var i = 0; i < data.length; i++) {
-                                 output += ("<li>" + asyncData.names[data[i][0].toString()] + " (" + data[i][1] + ")</li>");
-                              }
-                              // Put everything in a div with a littel score bar so the list doesn't stretch the table
-                              // 300px is close to the average size for the images, but it looks like image size varies slightly
-                              return '<div class="overflow-scroll" style="max-height:300px"><ul>' + output + '</ul></div>'
-                           },
-                           visible: false,
+      
+                     },
+                        
+                     // Score
+                     {
+                        data: '2',
+                        render: function (data, type) {
+                           return data;
                         },
+      
+                     },
                      ],
          
                      // Script to make cards from the table
