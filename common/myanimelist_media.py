@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     PICTURES_TYPEVAR = TypeVar("PICTURES_TYPEVAR", bound=Union["AnimePictures", "MangaPictures"])
     SUPER_GENERIC = TypeVar("SUPER_GENERIC")
     RECS_TYPEVAR = TypeVar("RECS_TYPEVAR", bound=Union["AnimeRecs", "MangaRecs"])
+    IMAGE_TYPEVAR = TypeVar("IMAGE_TYPEVAR", bound=Union[str, None])
     from typing_extensions import Self
 
 import random
@@ -301,8 +302,8 @@ class MyAnimeListMedia:
         self.db_object.id = json.id_
         self.db_object.title = json.title
         if json.main_picture:
-            self.db_object.main_picture_medium = json.main_picture.medium
-            self.db_object.main_picture_large = json.main_picture.large
+            self.db_object.main_picture_medium = self.image_cleaner(json.main_picture.medium)
+            self.db_object.main_picture_large = self.image_cleaner(json.main_picture.large)
         if json.alternative_titles:
             self.import_alternative_titles_synonyms(json.alternative_titles)
 
@@ -356,10 +357,21 @@ class MyAnimeListMedia:
                 self.update_relationships("manga", MangaRelatedManga, json.related_manga)
             # TODO: json.serialization
 
+    def image_cleaner(self, url: IMAGE_TYPEVAR) -> IMAGE_TYPEVAR:
+        if isinstance(url, str):
+            url = url.removeprefix(f"https://api-cdn.myanimelist.net/images/{self.MEDIA_TYPE}/").removesuffix(".jpg")
+
+        return url
+
     def import_pictures(self, value: list[Picture]) -> None:
         # TODO: Find a way to simplify this while still being type safe
         if self.PICTURES_MODEL == MangaPictures:
-            bulk = [self.PICTURES_MODEL(media_id=self.media_id, large=x.large, medium=x.medium) for x in value]
+            bulk = [
+                self.PICTURES_MODEL(
+                    media_id=self.media_id, large=self.image_cleaner(x.large), medium=self.image_cleaner(x.medium)
+                )
+                for x in value
+            ]
             # Delete old entries and import new ones
             self.PICTURES_MODEL.objects.filter(media_id=self.media_id).delete()
             self.PICTURES_MODEL.objects.bulk_create(bulk)  # type: ignore - This is type safe
